@@ -50,6 +50,8 @@ class weiboluBot(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
            pass
+        elif isinstance(error, commands.MissingPermissions) or isinstance(error, commands.CheckFailure):
+            await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
         elif hasattr(error, "original"):
             raise error.original
         else:
