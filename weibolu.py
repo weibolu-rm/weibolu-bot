@@ -6,7 +6,7 @@ from discord import Embed
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-OWNER_ID = 562175478824304661
+OWNER_ID = 91939126634364928
 
 PREFIX = "!"
 EXTENSIONS = [
@@ -50,7 +50,7 @@ class weiboluBot(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
            pass
-        elif isinstance(error, commands.MissingPermissions) or isinstance(error, commands.CheckFailure):
+        elif isinstance(error, commands.MissingPermissions):
             await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
         elif hasattr(error, "original"):
             raise error.original

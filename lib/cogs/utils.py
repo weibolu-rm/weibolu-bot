@@ -1,24 +1,27 @@
 from discord.ext.commands import Cog, has_permissions
 from discord.ext.commands import command, check
 
-OWNER_ID = 562175478824304661
+# OWNER_ID = 91939126634364928
 
 
-def is_me():
-    def predicate(ctx):
-        return ctx.message.author.id == OWNER_ID
-    return check(predicate)
+# def is_me():
+#     def predicate(ctx):
+#         return ctx.message.author.id == OWNER_ID
+#     return check(predicate)
 
 class Utils(Cog):
     def __init__(self, bot):
         self.bot = bot
     
     
+    # @is_me()
     @command(name="kill")
-    @is_me()
     async def kill(self, ctx):
-        await ctx.send("Aight, ima head out <:Tuturu:743261358509785099>")
-        await self.bot.logout()
+        if(ctx.message.author.id == self.bot.owner_id):
+            await ctx.send("Aight, ima head out <:Tuturu:743261358509785099>")
+            await self.bot.logout()
+        else:
+            await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
     
     @command(name="github", aliases=["git"])
     async def github(self, ctx):
