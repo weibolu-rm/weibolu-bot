@@ -31,8 +31,12 @@ class Utils(Cog):
     @has_permissions(manage_messages=True)
     async def clear(self, ctx, amount=5):
         author = ctx.author
-        await ctx.channel.purge(limit=amount)
-        await ctx.send(f"{author} deleted {amount} messages." )
+        f_msg = f"""```diff
+- {author} deleted {amount} messages.
+```
+"""
+        await ctx.channel.purge(limit=amount+1)
+        await ctx.send(f_msg)
 
     @command(name="echo", aliases=["say"])
     async def echo(self, ctx, *, message: str):
