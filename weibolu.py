@@ -11,7 +11,9 @@ OWNER_ID = 91939126634364928
 PREFIX = "!"
 EXTENSIONS = [
     "lib.cogs.ping",
-    "lib.cogs.utils"
+    "lib.cogs.utils",
+    "lib.cogs.admin",
+    "lib.cogs.mal"
 ]
 
 

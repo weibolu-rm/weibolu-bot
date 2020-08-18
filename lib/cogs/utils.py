@@ -22,7 +22,8 @@ class Utils(Cog):
             await self.bot.logout()
         else:
             await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
-    
+            #TODO: manage exception instead. 
+
     @command(name="github", aliases=["git"])
     async def github(self, ctx):
         await ctx.send("Check out weibolu's GitHub! https://github.com/weibolu-rm")
