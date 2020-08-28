@@ -13,7 +13,8 @@ EXTENSIONS = [
     "lib.cogs.ping",
     "lib.cogs.utils",
     "lib.cogs.admin",
-    "lib.cogs.mal"
+    "lib.cogs.mal",
+    "lib.cogs.fun"
 ]
 
 

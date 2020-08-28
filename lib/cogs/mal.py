@@ -37,13 +37,15 @@ class mal(Cog):
             await jikan.close()
             return
 
-        with open("anime.json", "w") as f:
-            json.dump(anime,f,indent=2)
+        # with open("anime.json", "w") as f:
+        #     json.dump(anime,f,indent=2)
 
         title = anime.get("title")
         title_japanese = anime.get("title_japanese")
+        anime_type = anime.get("type")
         url = anime.get("url")
         image = anime.get("image_url")
+        airing = anime.get("airing")
         aired = anime["aired"].get("string")
         synopsis = anime.get("synopsis")
         score = anime.get("score")
@@ -70,6 +72,7 @@ class mal(Cog):
                         description=f"\"{synopsis}\"",
                         color=0x003F87, timestamp=datetime.utcnow())
         fields = [
+                    ("**Type**:", anime_type, False),
                     ("**URL**:", url, False),
                     ("**Aired :**", aired, True),
                     ("**Broadcast :**", broadcast, True),
@@ -111,8 +114,8 @@ class mal(Cog):
             await jikan.close()
             return
 
-        with open("manga.json", "w") as f:
-            json.dump(manga,f,indent=2)
+        # with open("manga.json", "w") as f:
+        #     json.dump(manga,f,indent=2)
 
         title = manga.get("title")
         title_japanese = manga.get("title_japanese")
