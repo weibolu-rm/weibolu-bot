@@ -52,13 +52,19 @@ class Utils(Cog):
         embed = Embed(title=title, description=desc,
                 timestamp=datetime.utcnow())
         for arg in args:
-            field = arg.split("=")
+            field = arg.split("|")
             if(field[0] == "color"):
                 embed = Embed(title=title, description=desc, 
                         color=int(field[1], 16), timestamp=datetime.utcnow())
+            elif(field[0] == "image"):
+                embed.set_image(url=field[1])
             else:
-                embed.add_field(name=field[0], value=field[1], inline=False)    
+                # for now not inline by default
+                inline = False
+                if(len(field) > 2 and field[2] == "i"): inline = True
+                embed.add_field(name=field[0], value=field[1], inline=inline)    
 
+        await ctx.channel.purge(limit=1)
         await ctx.send(embed=embed)
         
 
