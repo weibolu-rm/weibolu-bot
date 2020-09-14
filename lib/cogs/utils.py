@@ -59,7 +59,6 @@ class Utils(Cog):
             elif(field[0] == "image"):
                 embed.set_image(url=field[1])
             else:
-                # for now not inline by default
                 inline = False
                 if(len(field) > 2 and field[2] == "i"): inline = True
                 embed.add_field(name=field[0], value=field[1], inline=inline)    

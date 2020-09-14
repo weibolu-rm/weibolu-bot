@@ -67,20 +67,6 @@ class weiboluBot(commands.Bot):
             self.stdout = self.get_channel(562190083374055445)
             print("bot ready")
 
-            #await self.stdout.send("we in bois")
-
-            # embed = Embed(title="Begin hacking sequence", description="You're getting hacked.", 
-            #             color=0xFF0000, timestamp=datetime.utcnow())
-            # fields = [("Name","Value", True),
-            #            ("Test","Testing", True),
-            #            ("non inline","tester", False)]
-            # for name, value, inline in fields:
-            #     embed.add_field(name=name, value=value, inline=inline)
-            # embed.set_author(name="Weibolu-bot", icon_url=self.guild.icon_url)
-            # embed.set_thumbnail(url=self.guild.icon_url)
-            # embed.set_image(url=self.guild.icon_url)
-            # await self.stdout.send(embed=embed)
-
         else:
             print("bot reconnected")
         
@@ -91,9 +77,6 @@ class weiboluBot(commands.Bot):
 
         await self.process_commands(message)
         ctx = await self.get_context(message)
-
-        # if message.content == "!kill": 
-        #     await self.logout()
 
         if "???" in message.content:
             await message.channel.send("<:KannaWhat:743663211584159835>")
