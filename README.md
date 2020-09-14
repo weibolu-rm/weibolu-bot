@@ -27,9 +27,9 @@ Embed creation:
 
 Fields values are seperated by '|'. To make a field inline, include 'i' at the end of the field.
 
-i.e. `!embed title "desc example" {name1|value1|i} {name2|value2|i} {name3|value3}`
-
+i.e. `name1|value1|i name2|value2|i name3|value3`
 
 `!embed <title> <desc> {color|0xHEX} {image|URL} {field_name|field_content|inline}`
+
 
 ![embed example](https://i.imgur.com/L3TXZAb.png)
