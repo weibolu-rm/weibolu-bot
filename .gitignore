@@ -3,5 +3,4 @@ __pycache__
 *.0
 *.json
 *.db
-fun.py
 db/
