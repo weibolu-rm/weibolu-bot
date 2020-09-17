@@ -5,6 +5,7 @@ from datetime import datetime
 from discord import Embed
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from lib.db import db 
 
 OWNER_ID = 91939126634364928
 
@@ -26,6 +27,8 @@ class weiboluBot(commands.Bot):
         self.ready = False
         self.guild = None
         self.Scheduler = AsyncIOScheduler()
+
+        db.autosave(self.Scheduler)
 
 
     def setup(self):
@@ -53,6 +56,8 @@ class weiboluBot(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
            pass
+        elif isinstance(error, commands.BadArgument):
+            pass
         elif isinstance(error, commands.MissingPermissions):
             await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
         elif hasattr(error, "original"):
@@ -65,6 +70,7 @@ class weiboluBot(commands.Bot):
             self.ready = True
             self.guild = self.get_guild(562178654151507981)
             self.stdout = self.get_channel(562190083374055445)
+            self.Scheduler.start()
             print("bot ready")
 
         else:

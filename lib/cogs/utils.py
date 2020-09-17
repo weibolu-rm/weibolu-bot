@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, has_permissions
+from discord.ext.commands import Cog, has_permissions, MissingPermissions, BadArgument
 from discord.ext.commands import command, check
 from discord import Embed
 from datetime import datetime
@@ -23,8 +23,8 @@ class Utils(Cog):
             await ctx.send("Aight, ima head out <:Tuturu:743261358509785099>")
             await self.bot.logout()
         else:
-            await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
-            #TODO: manage exception instead. 
+            raise MissingPermissions("This command is reserved for the author.")
+            # await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
 
     @command(name="github", aliases=["git"])
     async def github(self, ctx):
@@ -52,6 +52,8 @@ class Utils(Cog):
         embed = Embed(title=title, description=desc,
                 timestamp=datetime.utcnow())
         for arg in args:
+            if not "|" in arg or arg.startswith("|") or arg.endswith("|"):
+                raise BadArgument("Invalid field argument.")
             field = arg.split("|")
             if(field[0] == "color"):
                 embed = Embed(title=title, description=desc, 
@@ -65,6 +67,14 @@ class Utils(Cog):
 
         await ctx.channel.purge(limit=1)
         await ctx.send(embed=embed)
+
+    @embed.error
+    async def embed_error(self, ctx, error):
+        if isinstance(error, BadArgument):
+            await ctx.send("""Wrong argument. Make sure you seperate field values with '|'.
+See documentation for more details.
+`!embed <title> <desc> {color|0xcolor} {image|image_url} {field_name|field_value|inline}`""")
+
         
 
 def setup(bot):
