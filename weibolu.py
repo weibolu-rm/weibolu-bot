@@ -1,9 +1,9 @@
 import discord
 
-
 from datetime import datetime
 from discord import Embed
-from discord.ext import commands
+from discord.ext.commands import when_mentioned_or, Bot, MissingPermissions, Context
+from discord.ext.commands import CommandNotFound, BadArgument, CommandOnCooldown
 from discord.errors import Forbidden
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -11,23 +11,30 @@ from lib.db import db
 
 OWNER_ID = 91939126634364928
 
-PREFIX = "!"
+# PREFIX = "!"
 EXTENSIONS = [
     "lib.cogs.ping",
     "lib.cogs.utils",
     "lib.cogs.admin",
     "lib.cogs.mal",
-    "lib.cogs.fun"
+    "lib.cogs.fun",
+    "lib.cogs.meta",
+    "lib.cogs.welcome"
 ]
 
+# can mention bot instead of prefix
+def get_guild_prefix(bot, message):
+    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot, message)
 
-class weiboluBot(commands.Bot):
+
+class weiboluBot(Bot):
     def __init__(self):
-        super().__init__(command_prefix=PREFIX,
+        super().__init__(command_prefix=get_guild_prefix,
                          description="I don't know what I'm doing")
         self.owner_id = OWNER_ID
         self.ready = False
-        self.guild = None
+        self.guild = self.get_guild(562178654151507981)
         self.Scheduler = AsyncIOScheduler()
 
         db.autosave(self.Scheduler)
@@ -43,6 +50,9 @@ class weiboluBot(commands.Bot):
 
         print("setup complete")
 
+    
+        
+
     async def on_connect(self):
         print("we in bois")
 
@@ -56,13 +66,13 @@ class weiboluBot(commands.Bot):
         raise
 
     async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandNotFound):
+        if isinstance(error, CommandNotFound):
            pass
-        elif isinstance(error, commands.BadArgument):
+        elif isinstance(error, BadArgument):
             pass
-        elif isinstance(error, commands.CommandOnCooldown):
+        elif isinstance(error, CommandOnCooldown):
             await ctx.send(f"<@{ctx.message.author.id}>, this command is on cooldown. Please try again in {error.retry_after:,.2f} seconds.")
-        elif isinstance(error, commands.MissingPermissions):
+        elif isinstance(error, MissingPermissions):
             await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
         elif hasattr(error, "original"):
 
@@ -84,8 +94,17 @@ class weiboluBot(commands.Bot):
 
         else:
             print("bot reconnected")
-        
 
+    # async def process_commands(self, message):
+    #     ctx = await self.get_context(message, cls=Context)
+
+    #     if ctx.command is not None and ctx.guild is not None:
+    #         if self.ready:
+    #             await self.invoke(ctx)
+    #         else:
+    #             await ctx.send("I'm not ready yet.")
+
+    # moved most things to Cogs
     async def on_message(self, message):
         if message.author.bot:
             return
@@ -93,11 +112,6 @@ class weiboluBot(commands.Bot):
         await self.process_commands(message)
         ctx = await self.get_context(message)
 
-        if "???" in message.content:
-            await message.channel.send("<:KannaWhat:743663211584159835>")
-
-        if message.content.lower().startswith("hey kids"):
-            await message.channel.send("<:KannaPolice:743272223414026332>")
 
     def run(self):
         print("running setup...")
@@ -112,11 +126,4 @@ class weiboluBot(commands.Bot):
 if __name__ == "__main__":
     weiboluBot = weiboluBot()
     weiboluBot.run()
-"""
-open cv for image zooming,
-gif speed?
 
-Osu
-
-MAL
-"""
