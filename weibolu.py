@@ -4,6 +4,8 @@ import discord
 from datetime import datetime
 from discord import Embed
 from discord.ext import commands
+from discord.errors import Forbidden
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from lib.db import db 
 
@@ -58,10 +60,17 @@ class weiboluBot(commands.Bot):
            pass
         elif isinstance(error, commands.BadArgument):
             pass
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"<@{ctx.message.author.id}>, this command is on cooldown. Please try again in {error.retry_after:,.2f} seconds.")
         elif isinstance(error, commands.MissingPermissions):
             await ctx.send(f"<@{ctx.message.author.id}>, you do not have permission to do that.")
         elif hasattr(error, "original"):
-            raise error.original
+
+            if isinstance(error.original, Forbidden):
+                await ctx.send("I do not have permission to do that <:FeelsBadMan:743242240364773506>")
+
+            else:
+                raise error.original
         else:
             raise error
 

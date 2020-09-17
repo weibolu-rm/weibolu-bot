@@ -1,10 +1,11 @@
-from discord.ext.commands import Cog, command, has_permissions
+from discord.ext.commands import Cog, command, has_permissions, cooldown, BucketType
 from ..urbandict import urbandict as ud
 
 class Fun(Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @cooldown(1, 20, BucketType.user)
     @command(name="define", aliases=["ud"])
     async def define(self, ctx, *, expression: str):
         defs = ud.define(expression)

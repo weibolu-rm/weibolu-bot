@@ -1,5 +1,5 @@
 import asyncio
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, command, cooldown, BucketType
 from discord import Embed
 from datetime import datetime
 from jikanpy import AioJikan
@@ -10,7 +10,7 @@ class mal(Cog):
     def __init__(self, bot):
         self.bot = bot
         
-        
+    @cooldown(2, 20, BucketType.user)
     @command(name="anime", aliases=["mal"])
     async def mal(self, ctx, *, query):
         jikan = AioJikan()
@@ -88,6 +88,7 @@ class mal(Cog):
 
 
 
+    @cooldown(2, 20, BucketType.user)
     @command(name="manga")
     async def manga(self, ctx, *, query):
         jikan = AioJikan()
