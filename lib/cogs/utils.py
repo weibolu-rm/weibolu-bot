@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, has_permissions, MissingPermissions, BadArgument
+from discord.ext.commands import Cog, MissingPermissions, BadArgument
 from discord.ext.commands import command, check
 from discord import Embed
 from datetime import datetime
@@ -30,16 +30,17 @@ class Utils(Cog):
     async def github(self, ctx):
         await ctx.send("Check out weibolu's GitHub! https://github.com/weibolu-rm")
     
-    @command(name="clear", aliases=["clr"])
-    @has_permissions(manage_messages=True)
-    async def clear(self, ctx, amount=5):
-        author = ctx.author
-        f_msg = f"""```diff
-- {author} deleted {amount} messages.
-```
-"""
+    # moved to admin
+#     @command(name="clear", aliases=["clr"])
+#     @has_permissions(manage_messages=True)
+#     async def clear(self, ctx, amount=5):
+#         author = ctx.author
+#         f_msg = f"""```diff
+# - {author} deleted {amount} messages.
+# ```
+# """
         await ctx.channel.purge(limit=amount+1)
-        await ctx.send(f_msg)
+        await ctx.send(f_msg, delete_after=5)
 
     @command(name="echo", aliases=["say"])
     async def echo(self, ctx, *, message: str):

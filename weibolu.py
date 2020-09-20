@@ -19,7 +19,8 @@ EXTENSIONS = [
     "lib.cogs.mal",
     "lib.cogs.fun",
     "lib.cogs.meta",
-    "lib.cogs.welcome"
+    "lib.cogs.welcome",
+    "lib.cogs.log"
 ]
 
 # can mention bot instead of prefix
@@ -28,7 +29,7 @@ def get_guild_prefix(bot, message):
     return when_mentioned_or(prefix)(bot, message)
 
 
-def create_embed(title, description, color=None, image_url=None, fields=None):
+def create_embed(title, description, color=None, image_url=None, thumbnail_url=None, fields=None):
         if color is not None:
             em = Embed(title=title, description=description, 
             color=color, timestamp=datetime.utcnow())
@@ -36,6 +37,8 @@ def create_embed(title, description, color=None, image_url=None, fields=None):
             em = Embed(title=title, description=description, timestamp=datetime.utcnow())
         if image_url is not None:
             em.set_image(url=image_url)
+        if thumbnail_url is not None:
+            em.set_thumbnail(url=thumbnail_url)
         if fields is not None:
             for name, value, inline in fields:
                 em.add_field(name=name, value=value, inline=inline)
