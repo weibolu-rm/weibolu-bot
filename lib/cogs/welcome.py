@@ -1,7 +1,7 @@
 from discord.ext.commands import Cog, command
 from ..db import db
 
-WELCOME_CHANNEL = 562190083374055445
+WELCOME_CHANNEL = 757103651000025180
 
 class Welcome(Cog):
     def __init__(self, bot):

@@ -1,11 +1,10 @@
 import discord
-from discord import Embed
 from datetime import datetime
-
+from weibolu import create_embed
 from discord.ext.commands import Cog, has_permissions
 from discord.ext.commands import command, check
 
-class admin(Cog):
+class Admin(Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -14,13 +13,13 @@ class admin(Cog):
     async def kick(self, ctx, member: discord.Member, *, reason="None"):
         await member.kick(reason=reason)
 
-        embed = Embed(title="Kicked", color=0xFF0000, timestamp=datetime.utcnow())
         fields = [("**User**:", f"{member} <@{member.id}>", False),
                    ("**Reason**:",reason, False),
                    ("**Kicked by**:",ctx.message.author, False)]
-        for name, value, inline in fields:
-            embed.add_field(name=name, value=value, inline=inline)
+
+        embed = create_embed(title="Kicked", description="", color=0xFF0000, fields=fields)
+        
         await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(admin(bot))
+    bot.add_cog(Admin(bot))

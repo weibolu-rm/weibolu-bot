@@ -28,7 +28,21 @@ def get_guild_prefix(bot, message):
     return when_mentioned_or(prefix)(bot, message)
 
 
-class weiboluBot(Bot):
+def create_embed(title, description, color=None, image_url=None, fields=None):
+        if color is not None:
+            em = Embed(title=title, description=description, 
+            color=color, timestamp=datetime.utcnow())
+        else:
+            em = Embed(title=title, description=description, timestamp=datetime.utcnow())
+        if image_url is not None:
+            em.set_image(url=image_url)
+        if fields is not None:
+            for name, value, inline in fields:
+                em.add_field(name=name, value=value, inline=inline)
+        return em
+
+
+class WeiboluBot(Bot):
     def __init__(self):
         super().__init__(command_prefix=get_guild_prefix,
                          description="I don't know what I'm doing")
@@ -124,6 +138,6 @@ class weiboluBot(Bot):
 
 
 if __name__ == "__main__":
-    weiboluBot = weiboluBot()
-    weiboluBot.run()
+    WeiboluBot = WeiboluBot()
+    WeiboluBot.run()
 
