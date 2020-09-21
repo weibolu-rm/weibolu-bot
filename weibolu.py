@@ -20,7 +20,8 @@ EXTENSIONS = [
     "lib.cogs.fun",
     "lib.cogs.meta",
     "lib.cogs.welcome",
-    "lib.cogs.log"
+    "lib.cogs.log",
+    "lib.cogs.exp"
 ]
 
 # can mention bot instead of prefix
@@ -30,19 +31,19 @@ def get_guild_prefix(bot, message):
 
 
 def create_embed(title, description, color=None, image_url=None, thumbnail_url=None, fields=None):
-        if color is not None:
-            em = Embed(title=title, description=description, 
-            color=color, timestamp=datetime.utcnow())
-        else:
-            em = Embed(title=title, description=description, timestamp=datetime.utcnow())
-        if image_url is not None:
-            em.set_image(url=image_url)
-        if thumbnail_url is not None:
-            em.set_thumbnail(url=thumbnail_url)
-        if fields is not None:
-            for name, value, inline in fields:
-                em.add_field(name=name, value=value, inline=inline)
-        return em
+    if color is not None:
+        em = Embed(title=title, description=description, 
+        color=color, timestamp=datetime.utcnow())
+    else:
+        em = Embed(title=title, description=description, timestamp=datetime.utcnow())
+    if image_url is not None:
+        em.set_image(url=image_url)
+    if thumbnail_url is not None:
+        em.set_thumbnail(url=thumbnail_url)
+    if fields is not None:
+        for name, value, inline in fields:
+            em.add_field(name=name, value=value, inline=inline)
+    return em
 
 
 class WeiboluBot(Bot):
@@ -67,7 +68,16 @@ class WeiboluBot(Bot):
 
         print("setup complete")
 
-    
+
+    # update the db with guild and member info
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+            ((guild.id,) for guild in self.guilds))
+
+        db.multiexec("INSERT OR IGNORE INTO exp (UserID) VALUES (?)",
+            ((member.id,) for guild in self.guilds for member in guild.members if not member.bot))
+
+        db.commit()
         
 
     async def on_connect(self):
@@ -82,6 +92,7 @@ class WeiboluBot(Bot):
 
         raise
 
+    # main error handling. For command specific errors, we can make those in the Cogs.
     async def on_command_error(self, ctx, error):
         if isinstance(error, CommandNotFound):
            pass
@@ -101,25 +112,20 @@ class WeiboluBot(Bot):
         else:
             raise error
 
+
     async def on_ready(self):
         if not self.ready:
             self.ready = True
             self.guild = self.get_guild(562178654151507981)
             self.stdout = self.get_channel(562190083374055445)
             self.Scheduler.start()
+            self.update_db()
+
             print("bot ready")
 
         else:
             print("bot reconnected")
 
-    # async def process_commands(self, message):
-    #     ctx = await self.get_context(message, cls=Context)
-
-    #     if ctx.command is not None and ctx.guild is not None:
-    #         if self.ready:
-    #             await self.invoke(ctx)
-    #         else:
-    #             await ctx.send("I'm not ready yet.")
 
     # moved most things to Cogs
     async def on_message(self, message):

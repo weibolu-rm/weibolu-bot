@@ -47,9 +47,10 @@ class Admin(Cog):
         
             await self.log_channel.send(embed=embed)
 
-    
-    @command(name="clear", aliases=["clr"])
+    # TODO: add ability to delete messages from specific user(s) 
     @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True)
+    @command(name="clear", aliases=["clr"])
     async def clear(self, ctx, amount=5):
         author = ctx.author
         f_msg = f"""```diff
