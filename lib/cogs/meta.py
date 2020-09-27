@@ -17,7 +17,7 @@ class Meta(Cog):
             db.execute("UPDATE guilds SET Prefix = ? WHERE GuildID = ?", new, ctx.guild.id)
 
         embed = create_embed("New Prefix Set", 
-                            f"New Prefix Set to {new} by {ctx.message.author}.", color=Color.green)
+                            f"New Prefix Set to {new} by {ctx.message.author}.", color=Color.green())
 
         await self.bot.log_channel.send(embed=embed)
         await ctx.send(f"Prefix set to '{new}'.")
