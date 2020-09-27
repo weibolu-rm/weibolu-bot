@@ -4,3 +4,4 @@ __pycache__
 *.json
 *.db
 db/
+test.py

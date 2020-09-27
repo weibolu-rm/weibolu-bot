@@ -54,6 +54,7 @@ class WeiboluBot(Bot):
         self.ready = False
         self.guild = self.get_guild(562178654151507981)
         self.Scheduler = AsyncIOScheduler()
+        self.log_channel = self.get_channel(757112954599768064)
 
         db.autosave(self.Scheduler)
 
@@ -117,8 +118,10 @@ class WeiboluBot(Bot):
         if not self.ready:
             self.ready = True
             self.guild = self.get_guild(562178654151507981)
-            self.stdout = self.get_channel(562190083374055445)
+            self.log_channel = self.get_channel(757112954599768064)
+            self.reaction_yoink = "759659429754437663"
             self.Scheduler.start()
+            # self.fetch_bot_channels()
             self.update_db()
 
             print("bot ready")
@@ -134,6 +137,12 @@ class WeiboluBot(Bot):
 
         await self.process_commands(message)
         ctx = await self.get_context(message)
+
+
+    # def fetch_bot_channels(self):
+    #     self.reaction_yoink = db.field("SELECT YoinkID FROM guilds WHERE GuildID = ?", self.guild.id)
+    #     print("fetched channels")
+
 
 
     def run(self):
