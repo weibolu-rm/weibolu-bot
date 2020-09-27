@@ -31,16 +31,37 @@ class Fun(Cog):
                 print("emoji already exists")
                 return
     
-                try:
-                    response = requests.get(emoji.url)
-                    await self.bot.guild.create_custom_emoji(name=emoji.name, image=response.content)
-                except HTTPException:
-                    self.bot.log_channel.send(f"Problem adding emoji {emoji.name}.")
+            try:
+                response = requests.get(emoji.url)
+                await self.bot.guild.create_custom_emoji(name=emoji.name, image=response.content)
+            except HTTPException:
+                self.bot.log_channel.send(f"Problem adding emoji {emoji.name}.")
     
             embed = create_embed(f"Emoji added to {self.bot.guild.name}!", f"{emoji.name}", 
-                                    image_url=emoji.url, color=Color.dark_magenta())
+                                    image_url=emoji.url, color=Color.dark_teal())
     
             await self.bot.log_channel.send(embed=embed)
+
+    
+    @Cog.listener() 
+    async def on_raw_reaction_remove(self, payload): 
+        if str(payload.message_id) == self.bot.reaction_yoink:
+
+            member = self.bot.guild.get_member(payload.user_id)
+            # need permission to manage server
+            if not member.guild_permissions.manage_guild:
+                return
+                
+            emoji = payload.emoji
+            # we need to get the actual Emoji object
+            for e in self.bot.guild.emojis:
+                if emoji == e:
+                    embed = create_embed(f"Emoji removed from {self.bot.guild.name}!", f"{emoji.name}", 
+                                        image_url=emoji.url, color=Color.dark_magenta())
+                    await e.delete()
+                    await self.bot.log_channel.send(embed=embed)
+
+
 
     # TODO: make a seperate reaction Cog
     @Cog.listener()
