@@ -19,7 +19,7 @@ class Exp(Cog):
 
 
     async def add_xp(self, message, xp, lvl):
-        xp_to_add = randint(10,20)
+        xp_to_add = randint(5,15)
         new_lvl = int(((xp+xp_to_add)//42) ** 0.55)
         
         # exp lock set to 1 min for now

@@ -2,6 +2,7 @@ from discord.ext.commands import Cog, MissingPermissions, BadArgument
 from discord.ext.commands import command, check
 from discord import Embed
 from datetime import datetime
+from ..db import db
 
 # OWNER_ID = 91939126634364928
 
@@ -21,6 +22,7 @@ class Utils(Cog):
     async def kill(self, ctx):
         if(ctx.message.author.id == self.bot.owner_id):
             await ctx.send("Aight, ima head out <:Tuturu:743261358509785099>")
+            db.commit()
             await self.bot.logout()
         else:
             raise MissingPermissions("This command is reserved for the author.")
