@@ -47,7 +47,7 @@ class Fun(Cog):
     async def on_raw_reaction_remove(self, payload): 
         if int(payload.message_id) == self.bot.reaction_yoink:
 
-            member = self.bot.guild.get_member(payload.user_id)
+            member = self.bot.guild.get_member(payload.member_id)
             # need permission to manage server
             if not member.guild_permissions.manage_guild:
                 return
