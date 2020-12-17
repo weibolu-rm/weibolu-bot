@@ -20,7 +20,7 @@ class Fun(Cog):
 
     @Cog.listener() 
     async def on_raw_reaction_add(self, payload): 
-        if str(payload.message_id) == self.bot.reaction_yoink:
+        if int(payload.message_id) == self.bot.reaction_yoink:
 
             # need permission to manage server
             if not payload.member.guild_permissions.manage_guild:
@@ -45,7 +45,7 @@ class Fun(Cog):
     
     @Cog.listener() 
     async def on_raw_reaction_remove(self, payload): 
-        if str(payload.message_id) == self.bot.reaction_yoink:
+        if int(payload.message_id) == self.bot.reaction_yoink:
 
             member = self.bot.guild.get_member(payload.user_id)
             # need permission to manage server

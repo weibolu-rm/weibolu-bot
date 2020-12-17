@@ -59,6 +59,7 @@ class WeiboluBot(Bot):
         db.autosave(self.Scheduler)
 
 
+    # load bot extensions (Cogs)
     def setup(self):
         for extension in EXTENSIONS:
             try:
@@ -119,7 +120,7 @@ class WeiboluBot(Bot):
             self.ready = True
             self.guild = self.get_guild(562178654151507981)
             self.log_channel = self.get_channel(757112954599768064)
-            self.reaction_yoink = "759659429754437663"
+            self.reaction_yoink = 759659429754437663
             self.Scheduler.start()
             # self.fetch_bot_channels()
             self.update_db()
