@@ -23,9 +23,9 @@ class Welcome(Cog):
         await self.welcome_channel.send(f"{member.display_name} has left **{member.guild.name}**.. <:peepoSad:743248118124118056>")
 
     @Cog.listener()
-    async def on_member_update(self, member):
+    async def on_member_update(self, before, member):
         db.execute("UPDATE members SET username = ?, nickname = ?, discriminator = ? WHERE guild_id = ? AND member_id = ?;",
-            member.name, member.nick, member.discriminator, member.guild, member.id)
+            member.name, member.nick, member.discriminator, member.guild.id, member.id)
         print(f"""Member updated:
 Username: {member.name}
 Nickname: {member.nick}

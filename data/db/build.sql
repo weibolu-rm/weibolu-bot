@@ -1,12 +1,14 @@
-DROP TABLE IF EXISTS guilds;
-DROP TABLE IF EXISTS members;
-DROP TABLE IF EXISTS member_exp;
+-- DROP TABLE IF EXISTS guilds;
+-- DROP TABLE IF EXISTS members;
+-- DROP TABLE IF EXISTS member_exp;
 
 
 CREATE TABLE IF NOT EXISTS guilds (
     guild_id INTEGER PRIMARY KEY,
     name TEXT,
-    prefix TEXT  DEFAULT "!"
+    prefix TEXT  DEFAULT "!",
+    log_channel INTEGER,
+    welcome_channel INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS members (

@@ -25,7 +25,9 @@ class Emoji(Cog):
             embed = create_embed("New Yoinker Message Set", 
                                 f"Yoinker message set to message with id {self.bot.reaction_yoink}. {message.jump_url}", color=Color.dark_magenta())
 
-            await self.bot.log_channel.send(embed=embed)
+            log_channel = self.bot.get_log_channel(ctx.guild.id)
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
 
     # not wroking for some reason
     @set_yoink.error

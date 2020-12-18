@@ -3,7 +3,7 @@ import discord
 from datetime import datetime
 from discord import Embed
 from discord.ext.commands import when_mentioned_or, Bot, MissingPermissions, Context
-from discord.ext.commands import CommandNotFound, BadArgument, CommandOnCooldown
+from discord.ext.commands import CommandNotFound, BadArgument, CommandOnCooldown, MissingRequiredArgument
 from discord.errors import Forbidden
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -29,7 +29,7 @@ EXTENSIONS = [
 
 # can mention bot instead of prefix
 def get_guild_prefix(bot, message):
-    prefix = db.field("SELECT Prefix FROM guilds WHERE guild_id = ?", message.guild.id)
+    prefix = db.field("SELECT prefix FROM guilds WHERE guild_id = ?;", message.guild.id)
     return when_mentioned_or(prefix)(bot, message)
 
 
@@ -58,7 +58,7 @@ class WeiboluBot(Bot):
         self.ready = False
         self.guild = self.get_guild(562178654151507981)
         self.Scheduler = AsyncIOScheduler()
-        self.log_channel = self.get_channel(757112954599768064)
+        # self.log_channel = self.get_channel(757112954599768064)
 
         db.autosave(self.Scheduler)
 
@@ -114,6 +114,8 @@ class WeiboluBot(Bot):
            pass
         elif isinstance(error, BadArgument):
             pass
+        elif isinstance(error, MissingRequiredArgument):
+            pass
         elif isinstance(error, CommandOnCooldown):
             await ctx.send(f"<@{ctx.message.author.id}>, this command is on cooldown. Please try again in {error.retry_after:,.2f} seconds.")
         elif isinstance(error, MissingPermissions):
@@ -154,10 +156,13 @@ class WeiboluBot(Bot):
         ctx = await self.get_context(message)
 
 
-    # def fetch_bot_channels(self):
-    #     self.reaction_yoink = db.field("SELECT YoinkID FROM guilds WHERE GuildID = ?", self.guild.id)
-    #     print("fetched channels")
+    def get_log_channel(self, guild_id: int):
+        channel_id = db.field("SELECT log_channel FROM guilds WHERE guild_id = ?;", guild_id)
+        return self.get_channel(channel_id)
 
+    def get_welcome_channel(self, guild_id: int):
+        channel_id = db.field("SELECT welcome_channel FROM guilds WHERE guild_id = ?;", guild_id)
+        return self.get_channel(channel_id)
 
 
     def run(self):

@@ -37,7 +37,7 @@ class Exp(Cog):
     async def display_level(self, ctx, member: Optional[Member]):
         member = member or ctx.author
 
-        xp, lvl = db.record("SELECT xp, level FROM member_exp WHERE member_id = ? AND guild_id = ?", member.id, member.guild) or (None, None)
+        xp, lvl = db.record("SELECT xp, level FROM member_exp WHERE member_id = ? AND guild_id = ?", member.id, member.guild.id) or (None, None)
 
         if lvl is not None:
             embed = create_embed("Level", f"{member.display_name} is level {lvl:,} with {xp:,} XP.",

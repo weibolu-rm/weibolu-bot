@@ -35,7 +35,7 @@ class Fun(Cog):
                 response = requests.get(emoji.url)
                 await self.bot.guild.create_custom_emoji(name=emoji.name, image=response.content)
             except HTTPException:
-                self.bot.log_channel.send(f"Problem adding emoji {emoji.name}.")
+                await self.bot.log_channel.send(f"Problem adding emoji {emoji.name}.")
     
             embed = create_embed(f"Emoji added to {self.bot.guild.name}!", f"{emoji.name}", 
                                     image_url=emoji.url, color=Color.dark_teal())
