@@ -8,9 +8,6 @@ class Admin(Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @Cog.listener()
-    async def on_ready(self):
-        self.log_channel = self.bot.get_channel(757112954599768064)
 
     @has_permissions(kick_members=True)
     @bot_has_permissions(kick_members=True)
@@ -27,7 +24,9 @@ class Admin(Cog):
 
             embed = create_embed("Kicked", "", color=0xFF0000, thumbnail_url=member.avatar_url, fields=fields)
         
-            await self.log_channel.send(embed=embed)
+            log_channel = self.bot.get_log_channel(ctx.guild.id)
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
 
 
     @has_permissions(ban_members=True)
@@ -45,7 +44,9 @@ class Admin(Cog):
 
             embed = create_embed("Banned", "", color=0xFF0000, thumbnail_url=member.avatar_url, fields=fields)
         
-            await self.log_channel.send(embed=embed)
+            log_channel = self.bot.get_log_channel(ctx.guild.id)
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
 
     # TODO: add ability to delete messages from specific user(s) 
     @has_permissions(manage_messages=True)
@@ -64,8 +65,10 @@ class Admin(Cog):
 
         await ctx.channel.purge(limit=amount+1)
         await ctx.send(f_msg, delete_after=5)
-        await self.log_channel.send(embed=embed)
         
+        log_channel = self.bot.get_log_channel(ctx.guild.id)
+        if log_channel is not None:
+            await log_channel.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

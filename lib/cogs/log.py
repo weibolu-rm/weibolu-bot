@@ -1,4 +1,4 @@
-from weibolu import create_embed
+from weibolu import create_embed 
 from discord.ext.commands import Cog, command  
 from discord import Color
 
@@ -6,10 +6,7 @@ from discord import Color
 class Log(Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    @Cog.listener()
-    async def on_ready(self):
-        self.log_channel = self.bot.get_channel(757112954599768064)
+
 
     @Cog.listener()
     async def on_message_edit(self, original, message):
@@ -23,7 +20,10 @@ class Log(Cog):
             embed = create_embed("Message edited", f"Edited by {message.author}.",
             color=Color.gold(), thumbnail_url=message.author.avatar_url, fields=fields)
 
-            await self.log_channel.send(embed=embed)
+            log_channel = self.bot.get_log_channel(message.guild.id)
+
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
 
 
     @Cog.listener()
@@ -36,7 +36,9 @@ class Log(Cog):
         embed = create_embed("Message deleted", f"Original message by {message.author}.",
         color=Color.gold(), thumbnail_url=message.author.avatar_url, fields=fields)
 
-        await self.log_channel.send(embed=embed)
+        log_channel = self.bot.get_log_channel(message.guild.id)
+        if log_channel is not None:
+            await log_channel.send(embed=embed)
 
 
 

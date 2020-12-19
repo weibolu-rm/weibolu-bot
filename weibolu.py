@@ -3,13 +3,16 @@ import discord
 from datetime import datetime
 from discord import Embed
 from discord.ext.commands import when_mentioned_or, Bot, MissingPermissions, Context
-from discord.ext.commands import CommandNotFound, BadArgument, CommandOnCooldown
+from discord.ext.commands import CommandNotFound, BadArgument, CommandOnCooldown, MissingRequiredArgument
 from discord.errors import Forbidden
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from lib.db import db 
 
 OWNER_ID = 91939126634364928
+intents = discord.Intents.default()
+intents.members = True
+intents.reactions = True
 
 # PREFIX = "!"
 EXTENSIONS = [
@@ -21,12 +24,13 @@ EXTENSIONS = [
     "lib.cogs.meta",
     "lib.cogs.welcome",
     "lib.cogs.log",
-    "lib.cogs.exp"
+    "lib.cogs.exp",
+    "lib.cogs.emoji"
 ]
 
 # can mention bot instead of prefix
 def get_guild_prefix(bot, message):
-    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    prefix = db.field("SELECT prefix FROM guilds WHERE guild_id = ?;", message.guild.id)
     return when_mentioned_or(prefix)(bot, message)
 
 
@@ -49,12 +53,13 @@ def create_embed(title, description, color=None, image_url=None, thumbnail_url=N
 class WeiboluBot(Bot):
     def __init__(self):
         super().__init__(command_prefix=get_guild_prefix,
-                         description="I don't know what I'm doing")
+                         description="I don't know what I'm doing",
+                         intent=intents)
         self.owner_id = OWNER_ID
         self.ready = False
         self.guild = self.get_guild(562178654151507981)
         self.Scheduler = AsyncIOScheduler()
-        self.log_channel = self.get_channel(757112954599768064)
+        # self.log_channel = self.get_channel(757112954599768064)
 
         db.autosave(self.Scheduler)
 
@@ -70,19 +75,30 @@ class WeiboluBot(Bot):
 
         print("setup complete")
 
-
     # update the db with guild and member info
-    def update_db(self):
-        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
-            ((guild.id,) for guild in self.guilds))
+    async def update_db(self):
+        print("Updating db...")
+        
+        db.multiexec("INSERT OR IGNORE INTO guilds (guild_id, name) VALUES (?, ?);",
+            ((guild.id, guild.name) for guild in self.guilds))
 
-        db.multiexec("INSERT OR IGNORE INTO exp (UserID) VALUES (?)",
-            ((member.id,) for guild in self.guilds for member in guild.members if not member.bot))
-
+        # had to change the old guild.members to use an async alternative 
+        for guild in self.guilds:
+            async for member in guild.fetch_members(): 
+                if not member.bot:
+                    db.execute("""INSERT OR IGNORE INTO members 
+                    (guild_id, member_id, username, nickname, discriminator, joined_date) 
+                    VALUES (?, ?, ?, ?, ?, ?);""",
+                    member.guild.id,  member.id, member.name, member.nick, member.discriminator, 
+                    member.joined_at)
+                    db.execute("INSERT OR IGNORE INTO member_exp (guild_id, member_id) VALUES (?, ?)", member.guild.id, member.id)
+        
         db.commit()
+        print("Done.")
         
 
     async def on_connect(self):
+        await self.update_db()
         print("we in bois")
 
     async def on_disconnect(self):
@@ -99,6 +115,8 @@ class WeiboluBot(Bot):
         if isinstance(error, CommandNotFound):
            pass
         elif isinstance(error, BadArgument):
+            pass
+        elif isinstance(error, MissingRequiredArgument):
             pass
         elif isinstance(error, CommandOnCooldown):
             await ctx.send(f"<@{ctx.message.author.id}>, this command is on cooldown. Please try again in {error.retry_after:,.2f} seconds.")
@@ -118,12 +136,13 @@ class WeiboluBot(Bot):
     async def on_ready(self):
         if not self.ready:
             self.ready = True
-            self.guild = self.get_guild(562178654151507981)
-            self.log_channel = self.get_channel(757112954599768064)
-            self.reaction_yoink = 759659429754437663
+            # Now keeping all guild specific configurations in the database.
+
+            # self.guild = self.get_guild(562178654151507981)
+            # self.log_channel = self.get_channel(757112954599768064)
+            # self.reaction_yoink = 759659429754437663
             self.Scheduler.start()
-            # self.fetch_bot_channels()
-            self.update_db()
+            await self.update_db()
 
             print("bot ready")
 
@@ -140,10 +159,13 @@ class WeiboluBot(Bot):
         ctx = await self.get_context(message)
 
 
-    # def fetch_bot_channels(self):
-    #     self.reaction_yoink = db.field("SELECT YoinkID FROM guilds WHERE GuildID = ?", self.guild.id)
-    #     print("fetched channels")
+    def get_log_channel(self, guild_id: int):
+        channel_id = db.field("SELECT log_channel FROM guilds WHERE guild_id = ?;", guild_id)
+        return self.get_channel(channel_id)
 
+    def get_welcome_channel(self, guild_id: int):
+        channel_id = db.field("SELECT welcome_channel FROM guilds WHERE guild_id = ?;", guild_id)
+        return self.get_channel(channel_id)
 
 
     def run(self):

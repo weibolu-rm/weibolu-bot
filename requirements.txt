@@ -5,7 +5,7 @@ attrs==19.3.0
 certifi==2020.6.20
 chardet==3.0.4
 discord-ext-menus @ git+https://github.com/Rapptz/discord-ext-menus@84caae8038d0d3adc860957ccef05baeec2e2dd8
-discord.py==1.4.1
+discord.py==1.5.1
 idna==2.10
 idna-ssl==1.1.0
 jikanpy==4.2.2
