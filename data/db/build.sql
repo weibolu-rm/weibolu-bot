@@ -8,7 +8,14 @@ CREATE TABLE IF NOT EXISTS guilds (
     name TEXT,
     prefix TEXT  DEFAULT "!",
     log_channel INTEGER,
-    welcome_channel INTEGER
+    welcome_channel INTEGER,
+    yoinker_id INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS emojis (
+    guild_id INTEGER,
+    emoji_id INTEGER,
+    usage INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS members (

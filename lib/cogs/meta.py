@@ -2,7 +2,6 @@ from discord.ext.commands import Cog, command, has_permissions
 from ..db import db 
 from discord import Color, TextChannel
 from weibolu import create_embed, intents
-from typing import Optional
 
 class Meta(Cog):
     def __init__(self, bot):

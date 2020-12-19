@@ -24,7 +24,8 @@ EXTENSIONS = [
     "lib.cogs.meta",
     "lib.cogs.welcome",
     "lib.cogs.log",
-    "lib.cogs.exp"
+    "lib.cogs.exp",
+    "lib.cogs.emoji"
 ]
 
 # can mention bot instead of prefix
@@ -97,6 +98,7 @@ class WeiboluBot(Bot):
         
 
     async def on_connect(self):
+        await self.update_db()
         print("we in bois")
 
     async def on_disconnect(self):
@@ -134,11 +136,12 @@ class WeiboluBot(Bot):
     async def on_ready(self):
         if not self.ready:
             self.ready = True
-            self.guild = self.get_guild(562178654151507981)
-            self.log_channel = self.get_channel(757112954599768064)
-            self.reaction_yoink = 759659429754437663
+            # Now keeping all guild specific configurations in the database.
+
+            # self.guild = self.get_guild(562178654151507981)
+            # self.log_channel = self.get_channel(757112954599768064)
+            # self.reaction_yoink = 759659429754437663
             self.Scheduler.start()
-            # self.fetch_bot_channels()
             await self.update_db()
 
             print("bot ready")
