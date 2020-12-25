@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS guilds (
     prefix TEXT  DEFAULT "!",
     log_channel INTEGER,
     welcome_channel INTEGER,
-    yoinker_id INTEGER
+    yoinker_id INTEGER,
+    lvl_channel INTEGER,
+    lvl_toggle INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS emojis (
