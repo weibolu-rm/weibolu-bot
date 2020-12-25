@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from weibolu import create_embed
 from discord.ext.commands import Cog, command
-from discord import Color, Member
+from discord import Color, Member, NotFound
 from typing import Optional
 from random import randint
 from ..db import db
@@ -55,14 +55,17 @@ class Exp(Cog):
         fields = []
 
         for i, rank in enumerate(ranks):
-            i+= 1
-            if i > 10: 
+            if i > 9: 
                 break
 
-            if (user := self.bot.get_user(rank[0])) is not None:
-                fields.append(("**Rank**", f"{i}" , True))
-                fields.append(("**Member**", f"{user}" , True))
-                fields.append(("**LVL**", f"{rank[3]} ({rank[2]}XP)" , True))
+            try:
+                user = await self.bot.fetch_user(rank[0])
+            except NotFound as e:
+                continue
+
+            fields.append(("**Rank**", f"{i+1}" , True))
+            fields.append(("**Member**", f"{user}" , True))
+            fields.append(("**LVL (XP)**", f"{rank[3]} ({rank[2]}XP)" , True))
 
         embed = create_embed("Level Ranking", f"Member level rankings for {ctx.guild.name}.",
             fields=fields, color=Color.magenta())
