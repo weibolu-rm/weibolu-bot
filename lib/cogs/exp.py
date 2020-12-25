@@ -37,7 +37,8 @@ class Exp(Cog):
     async def display_level(self, ctx, member: Optional[Member]):
         member = member or ctx.author
 
-        xp, lvl = db.record("SELECT xp, level FROM member_exp WHERE member_id = ? AND guild_id = ?", member.id, member.guild.id) or (None, None)
+        xp, lvl = db.record("SELECT xp, level FROM member_exp WHERE member_id = ? AND guild_id = ?;",
+        member.id, member.guild.id) or (None, None)
 
         if lvl is not None:
             embed = create_embed("Level", f"{member.display_name} is level {lvl:,} with {xp:,} XP.",
@@ -46,6 +47,29 @@ class Exp(Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send("That member does not have any exp data.")
+
+
+    @command(name="rank")
+    async def display_rank(self, ctx):
+        ranks = db.records("SELECT * FROM member_exp WHERE guild_id = ? ORDER BY xp DESC;", ctx.message.guild.id)
+        fields = []
+
+        for i, rank in enumerate(ranks):
+            i+= 1
+            if i > 10: 
+                break
+
+            if (user := self.bot.get_user(rank[0])) is not None:
+                fields.append(("**Rank**", f"{i}" , True))
+                fields.append(("**Member**", f"{user}" , True))
+                fields.append(("**LVL**", f"{rank[3]} ({rank[2]}XP)" , True))
+
+        embed = create_embed("Level Ranking", f"Member level rankings for {ctx.guild.name}.",
+            fields=fields, color=Color.magenta())
+            
+        await ctx.send(embed=embed)
+
+
 
     @Cog.listener()
     async def on_message(self, message):
