@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from weibolu import create_embed
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, command, has_permissions
 from discord import Color, Member, NotFound, TextChannel
 from typing import Optional
 from random import randint
@@ -32,31 +32,65 @@ class Exp(Cog):
         new_lvl = int(((xp+xp_to_add)//42) ** 0.55)
         
         # exp lock set to 1 min for now
-        db.execute("UPDATE member_exp SET xp = xp + ?, level = ?, xp_lock = ? WHERE member_id = ?", 
-                    xp_to_add, new_lvl, (datetime.utcnow()+timedelta(seconds=60)).isoformat(), message.author.id)
+        db.execute("UPDATE member_exp SET xp = xp + ?, level = ?, xp_lock = ? WHERE member_id = ? AND guild_id = ?", 
+                    xp_to_add, new_lvl, (datetime.utcnow()+timedelta(seconds=60)).isoformat(), message.author.id, message.guild.id)
 
         if new_lvl > lvl and guild_lvl_enabled(message.guild.id):
 
             embed = create_embed(f"Level Up!", f"Yay! {message.author.mention}, you've reached level {new_lvl:,}.",
             color=Color.magenta(), image_url=message.author.avatar_url)
-            #TODO: send in specific level channel
-            await message.channel.send(embed=embed)
+
+            # if notifications are toggled, will send to specific channel if exists, otherwise the channel
+            # with the message that leveled the user
+            lvl_channel = self.bot.get_channel(get_guild_lvl_channel(message.guild.id))
+            if lvl_channel is not None:
+                await lvl_channel.send(embed=embed)
+            else:
+                await message.channel.send(embed=embed)
 
     @command(name="level", aliases=["lvl"])
+    @has_permissions(manage_guild = True)
     async def level(self, ctx, arg, channel: TextChannel = None):
         if arg == "toggle" or arg == "t":
-            guild_toggle = db.field("SELECT lvl_toggle FROM guilds WHERE guild_id = ?;", ctx.message.guild.id)
+            guild_toggle = db.field("SELECT lvl_toggle FROM guilds WHERE guild_id = ?;", ctx.guild.id)
+            on_off = ""
+
 
             if guild_toggle == 1:
-                db.execute("UPDATE guilds SET lvl_toggle = 0 WHERE guild_id = ?;", ctx.message.guild.id)
+                on_off = "Off"
+                db.execute("UPDATE guilds SET lvl_toggle = 0 WHERE guild_id = ?;", ctx.guild.id)
+                db.commit()
                 await ctx.send("Level notificationgs disabled.")
             else:
-                db.execute("UPDATE guilds SET lvl_toggle = 1 WHERE guild_id = ?;", ctx.message.guild.id)
+                on_off = "On"
+                db.execute("UPDATE guilds SET lvl_toggle = 1 WHERE guild_id = ?;", ctx.guild.id)
+                db.commit()
                 await ctx.send("Level notificationgs enabled.")
 
-            db.commit()
+            embed = create_embed(f"Level Notification Toggled {on_off}",
+                    f"Level notifications toggled by {ctx.message.author}.", color=Color.gold())
+
+            log_channel = self.bot.get_log_channel(ctx.guild.id)
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
+
+
             return
         
+        if arg == "clear" or arg == "clr":
+            db.execute("UPDATE guilds SET lvl_channel = ? WHERE guild_id = ?;", None, ctx.guild.id)
+            db.commit()
+            embed = create_embed("Level Channel Cleared", 
+                                f"Level channel was cleared by {ctx.message.author}.", color=Color.red())
+
+            log_channel = self.bot.get_log_channel(ctx.guild.id)
+            if log_channel is not None:
+                await log_channel.send(embed=embed)
+            await ctx.send(f"Successfully cleared level channel.")
+
+            return
+
+
         if arg != "channel":
             await ctx.send("Invalid argument. !level channel #lvl-channel")
         elif self.bot.get_channel(channel.id) is None:
@@ -67,7 +101,7 @@ class Exp(Cog):
             await ctx.send(f"Level channel set to <#{channel.id}>.")
 
         embed = create_embed("Level Channel Set",
-                            f"New Level Channel Set to <#{channel.id}>.", color=Color.gold())
+                            f"New Level Channel Set to <#{channel.id}> by {ctx.message.author}.", color=Color.gold())
 
         log_channel = self.bot.get_log_channel(ctx.guild.id)
         if log_channel is not None:
@@ -92,7 +126,7 @@ class Exp(Cog):
 
     @command(name="rank")
     async def display_rank(self, ctx):
-        ranks = db.records("SELECT * FROM member_exp WHERE guild_id = ? ORDER BY xp DESC;", ctx.message.guild.id)
+        ranks = db.records("SELECT * FROM member_exp WHERE guild_id = ? ORDER BY xp DESC;", ctx.guild.id)
         fields = []
 
         for i, rank in enumerate(ranks):
@@ -102,6 +136,7 @@ class Exp(Cog):
             try:
                 user = await self.bot.fetch_user(rank[0])
             except NotFound as e:
+                i -= 1
                 continue
 
             fields.append(("**Rank**", f"{i+1}" , True))

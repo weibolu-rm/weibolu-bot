@@ -17,7 +17,7 @@ class Emoji(Cog):
     @has_permissions(manage_guild = True)
     async def set_yoink(self, ctx, arg, message_id: Optional[int]):
         message_id = message_id or None
-        if arg == "clear":
+        if arg == "clear" or arg == "clr":
             db.execute("UPDATE guilds SET yoinker_id = ? WHERE guild_id = ?;", None, ctx.guild.id)
             db.commit()
             embed = create_embed("Yoinker Message Cleared", 
