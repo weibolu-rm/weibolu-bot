@@ -38,18 +38,18 @@ class Exp(Cog):
                     points_to_add, message.author.id, message.guild.id)
             db.commit() # users are probably immediately going to check for points
 
-        # level notification enabled?
-        if guild_lvl_enabled(message.guild.id):
-            embed = create_embed(f"Level Up!", f"Yay! {message.author.mention}, you've reached level {new_lvl:,}. \n{points_to_add} points have been awarded to your account.",
-            color=Color.magenta(), image_url=message.author.avatar_url)
+            # level notification enabled?
+            if guild_lvl_enabled(message.guild.id):
+                embed = create_embed(f"Level Up!", f"Yay! {message.author.mention}, you've reached level {new_lvl:,}. \n{points_to_add} points have been awarded to your account.",
+                color=Color.magenta(), image_url=message.author.avatar_url)
 
-            # if notifications are toggled, will send to specific channel if exists, otherwise the channel
-            # with the message that leveled the user
-            lvl_channel = self.bot.get_guild_lvl_channel(message.guild.id)
-            if lvl_channel is not None:
-                await lvl_channel.send(embed=embed)
-            else:
-                await message.channel.send(embed=embed)
+                # if notifications are toggled, will send to specific channel if exists, otherwise the channel
+                # with the message that leveled the user
+                lvl_channel = self.bot.get_guild_lvl_channel(message.guild.id)
+                if lvl_channel is not None:
+                    await lvl_channel.send(embed=embed)
+                else:
+                    await message.channel.send(embed=embed)
 
     @command(name="level", aliases=["lvl"])
     @has_permissions(manage_guild = True)
