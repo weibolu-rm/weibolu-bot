@@ -36,6 +36,7 @@ class Exp(Cog):
             # awarding points for leveling up
             db.execute("UPDATE member_points SET points = points + ? WHERE member_id = ? AND guild_id = ?;", 
                     points_to_add, message.author.id, message.guild.id)
+            db.commit() # users are probably immediately going to check for points
 
         # level notification enabled?
         if guild_lvl_enabled(message.guild.id):

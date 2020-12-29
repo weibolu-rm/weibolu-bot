@@ -28,6 +28,7 @@ class Economy(Cog):
         
         db.execute("UPDATE member_points SET points = points + ?, daily_cooldown = ? WHERE member_id = ? AND guild_id = ?;", 
                     points_to_add, (datetime.utcnow()+timedelta(days=1)).isoformat(), message.author.id, message.guild.id)
+        db.commit() # users are probably immediately going to check for points
 
     @command(name="daily", aliases=["claim"])
     async def daily_check_in(self, ctx):
