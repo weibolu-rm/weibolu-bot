@@ -17,12 +17,14 @@ class Economy(Cog):
         if  datetime.utcnow() > datetime.fromisoformat(points_lock):
             await self.add_points(message)
 
+    # for member activity
     async def add_points(self, message):
         points_to_add = randint(5,15)
         
         db.execute("UPDATE member_points SET points = points + ?, points_lock = ? WHERE member_id = ? AND guild_id = ?;", 
                     points_to_add, (datetime.utcnow()+timedelta(minutes=5)).isoformat(), message.author.id, message.guild.id)
 
+    # specific for daily check in, has a 24h cooldown
     async def add_daily_points(self, message):
         points_to_add = 200
         
