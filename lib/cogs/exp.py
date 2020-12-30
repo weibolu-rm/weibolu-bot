@@ -6,10 +6,6 @@ from typing import Optional
 from random import randint
 from ..db import db
 
-def get_guild_lvl_channel(guild_id: int):
-    lvl_channel = db.field("SELECT lvl_channel FROM guilds WHERE guild_id = ?;", guild_id)
-    return lvl_channel
-
 def guild_lvl_enabled(guild_id: int):
     lvl_enabled = db.field("SELECT lvl_toggle FROM guilds WHERE guild_id = ?;", guild_id)
     if lvl_enabled == 1:
@@ -21,7 +17,7 @@ class Exp(Cog):
         self.bot = bot
 
     async def process_xp(self, message):
-        xp, lvl, xp_lock = db.record("SELECT xp, level, xp_lock FROM member_exp WHERE member_id = ?", message.author.id) 
+        xp, lvl, xp_lock = db.record("SELECT xp, level, xp_lock FROM member_exp WHERE member_id = ? AND guild_id = ?;", message.author.id, message.guild.id) 
         # checking if user can receive exp
         if  datetime.utcnow() > datetime.fromisoformat(xp_lock):
             await self.add_xp(message, xp, lvl)
@@ -30,23 +26,30 @@ class Exp(Cog):
     async def add_xp(self, message, xp, lvl):
         xp_to_add = randint(5,15)
         new_lvl = int(((xp+xp_to_add)//42) ** 0.55)
+        points_to_add = new_lvl * 10
         
         # exp lock set to 1 min for now
-        db.execute("UPDATE member_exp SET xp = xp + ?, level = ?, xp_lock = ? WHERE member_id = ? AND guild_id = ?", 
+        db.execute("UPDATE member_exp SET xp = xp + ?, level = ?, xp_lock = ? WHERE member_id = ? AND guild_id = ?;", 
                     xp_to_add, new_lvl, (datetime.utcnow()+timedelta(seconds=60)).isoformat(), message.author.id, message.guild.id)
 
-        if new_lvl > lvl and guild_lvl_enabled(message.guild.id):
+        if new_lvl > lvl: 
+            # awarding points for leveling up
+            db.execute("UPDATE member_points SET points = points + ? WHERE member_id = ? AND guild_id = ?;", 
+                    points_to_add, message.author.id, message.guild.id)
+            db.commit() # users are probably immediately going to check for points
 
-            embed = create_embed(f"Level Up!", f"Yay! {message.author.mention}, you've reached level {new_lvl:,}.",
-            color=Color.magenta(), image_url=message.author.avatar_url)
+            # level notification enabled?
+            if guild_lvl_enabled(message.guild.id):
+                embed = create_embed(f"Level Up!", f"Yay! {message.author.mention}, you've reached level {new_lvl:,}. \n{points_to_add} points have been awarded to your account.",
+                color=Color.magenta(), image_url=message.author.avatar_url)
 
-            # if notifications are toggled, will send to specific channel if exists, otherwise the channel
-            # with the message that leveled the user
-            lvl_channel = self.bot.get_channel(get_guild_lvl_channel(message.guild.id))
-            if lvl_channel is not None:
-                await lvl_channel.send(embed=embed)
-            else:
-                await message.channel.send(embed=embed)
+                # if notifications are toggled, will send to specific channel if exists, otherwise the channel
+                # with the message that leveled the user
+                lvl_channel = self.bot.get_guild_lvl_channel(message.guild.id)
+                if lvl_channel is not None:
+                    await lvl_channel.send(embed=embed)
+                else:
+                    await message.channel.send(embed=embed)
 
     @command(name="level", aliases=["lvl"])
     @has_permissions(manage_guild = True)
@@ -141,8 +144,7 @@ class Exp(Cog):
 
             fields.append(("**Rank**", f"{i+1}" , True))
             fields.append(("**Member**", f"{user}" , True))
-            fields.append(("**LVL (XP)**", f"{rank[3]} ({rank[2]}XP)" , True))
-
+            fields.append(("**LVL (XP)**", f"{rank[3]} ({rank[2]}XP)" , True)) 
         embed = create_embed("Level Ranking", f"Member level rankings for {ctx.guild.name}.",
             fields=fields, color=Color.magenta())
             

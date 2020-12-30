@@ -25,7 +25,9 @@ EXTENSIONS = [
     "lib.cogs.welcome",
     "lib.cogs.log",
     "lib.cogs.exp",
-    "lib.cogs.emoji"
+    "lib.cogs.emoji",
+    "lib.cogs.economy",
+    "lib.cogs.gambling",
 ]
 
 # can mention bot instead of prefix
@@ -92,6 +94,7 @@ class WeiboluBot(Bot):
                     member.guild.id,  member.id, member.name, member.nick, member.discriminator, 
                     member.joined_at)
                     db.execute("INSERT OR IGNORE INTO member_exp (guild_id, member_id) VALUES (?, ?)", member.guild.id, member.id)
+                    db.execute("INSERT OR IGNORE INTO member_points (guild_id, member_id) VALUES (?, ?)", member.guild.id, member.id)
         
         db.commit()
         print("Done.")
@@ -167,6 +170,9 @@ class WeiboluBot(Bot):
         channel_id = db.field("SELECT welcome_channel FROM guilds WHERE guild_id = ?;", guild_id)
         return self.get_channel(channel_id)
 
+    def get_guild_lvl_channel(self, guild_id: int):
+        channel_id = db.field("SELECT lvl_channel FROM guilds WHERE guild_id = ?;", guild_id)
+        return self.get_channel(channel_id)
 
     def run(self):
         print("running setup...")
