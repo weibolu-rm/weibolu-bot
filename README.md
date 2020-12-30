@@ -3,6 +3,12 @@
 Discord py bot for personal use.
 
 ## Some Features:
+- My Anime List anime/ manga lookup
+- Urban Dictionary loopup
+- Experience system
+- Economy system
+- Logging
+- Guild specific configuration
 
 ```
 <> : required
@@ -11,7 +17,7 @@ Discord py bot for personal use.
 Do not include the actual brackets
 ```
 
-MyAnimeList implementation:
+### MyAnimeList implementation:
 
 ![anime embed](https://i.imgur.com/xdGDmno.png)
 
