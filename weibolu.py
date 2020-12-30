@@ -26,7 +26,8 @@ EXTENSIONS = [
     "lib.cogs.log",
     "lib.cogs.exp",
     "lib.cogs.emoji",
-    "lib.cogs.economy"
+    "lib.cogs.economy",
+    "lib.cogs.gambling",
 ]
 
 # can mention bot instead of prefix

@@ -39,13 +39,13 @@ class Economy(Cog):
         # checking if user can receive points
         if  datetime.utcnow() > datetime.fromisoformat(daily_cooldown):
             await self.add_daily_points(ctx.message)
-            await ctx.send(f"200 daily points claimed!")
+            await ctx.send(f"200 daily :coin: claimed!")
 
         else:
             await ctx.send(f"You have already claimed your daily check-in. Next one is in {datetime.fromisoformat(daily_cooldown) - datetime.utcnow()}.")
 
 
-    @command(name="points", aliases=["pts", "economy"])
+    @command(name="points", aliases=["pts", "economy", "balance", "bal"])
     async def display_points(self, ctx, member: Optional[Member]):
         member = member or ctx.author
 
@@ -53,8 +53,8 @@ class Economy(Cog):
         member.id, member.guild.id);
 
         if points is not None:
-            embed = create_embed("Points", f"{member.display_name} has {points} points.",
-            color=Color.blue()    , thumbnail_url=member.avatar_url)
+            embed = create_embed("Points :purse:", f"{member.display_name} has {points} :coin:.",
+            color=Color.blue(), thumbnail_url=member.avatar_url)
 
             await ctx.send(embed=embed)
         else:
