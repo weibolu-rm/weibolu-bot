@@ -3,8 +3,8 @@
 Discord py bot for personal use.
 
 ## Some Features:
-- My Anime List anime/ manga lookup
-- Urban Dictionary loopup
+- MyAnimeList anime/ manga lookup
+- Urban Dictionary lookup
 - Experience system
 - Economy system
 - Logging
