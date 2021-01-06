@@ -38,7 +38,7 @@ class Economy(Cog):
                                     ctx.author.id, ctx.guild.id) 
         # checking if user can receive points
         cooldown_datetime = datetime.fromisoformat(daily_cooldown)
-        cooldown = strfdelta(datetime.utcnow() - cooldown_datetime, "{hours} hours and {minutes} minutes")
+        cooldown = strfdelta(cooldown_datetime - datetime.utcnow(), "{hours} hours and {minutes} minutes")
         if  datetime.utcnow() > cooldown_datetime:
             await self.add_daily_points(ctx.message)
             await ctx.send(f"200 daily :coin: claimed!")
