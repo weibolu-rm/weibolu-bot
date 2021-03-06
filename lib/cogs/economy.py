@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from discord.ext.commands import Cog, command
-from weibolu import create_embed
+from weibolu import create_embed, strfdelta
 from discord import Color, Member
 from typing import Optional
 from random import randint
@@ -24,12 +24,12 @@ class Economy(Cog):
         db.execute("UPDATE member_points SET points = points + ?, points_lock = ? WHERE member_id = ? AND guild_id = ?;", 
                     points_to_add, (datetime.utcnow()+timedelta(minutes=5)).isoformat(), message.author.id, message.guild.id)
 
-    # specific for daily check in, has a 24h cooldown
+    # specific for daily check in, has a 12h cooldown
     async def add_daily_points(self, message):
         points_to_add = 200
         
         db.execute("UPDATE member_points SET points = points + ?, daily_cooldown = ? WHERE member_id = ? AND guild_id = ?;", 
-                    points_to_add, (datetime.utcnow()+timedelta(days=1)).isoformat(), message.author.id, message.guild.id)
+                    points_to_add, (datetime.utcnow()+timedelta(hours=12)).isoformat(), message.author.id, message.guild.id)
         db.commit() # users are probably immediately going to check for points
 
     @command(name="daily", aliases=["claim"])
@@ -37,12 +37,15 @@ class Economy(Cog):
         points, daily_cooldown = db.record("SELECT points, daily_cooldown FROM member_points WHERE member_id = ? AND guild_id = ?;",
                                     ctx.author.id, ctx.guild.id) 
         # checking if user can receive points
-        if  datetime.utcnow() > datetime.fromisoformat(daily_cooldown):
+        cooldown_datetime = datetime.fromisoformat(daily_cooldown)
+        cooldown = strfdelta(cooldown_datetime - datetime.utcnow(), "{hours} hours and {minutes} minutes")
+        if  datetime.utcnow() > cooldown_datetime:
             await self.add_daily_points(ctx.message)
             await ctx.send(f"200 daily :coin: claimed!")
 
         else:
-            await ctx.send(f"You have already claimed your daily check-in. Next one is in {datetime.fromisoformat(daily_cooldown) - datetime.utcnow()}.")
+            await ctx.send(f"You can claim your daily points **{cooldown}** from now.", delete_after=10)
+            
 
 
     @command(name="points", aliases=["pts", "economy", "balance", "bal"])

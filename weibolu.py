@@ -36,6 +36,7 @@ def get_guild_prefix(bot, message):
     return when_mentioned_or(prefix)(bot, message)
 
 
+# slightly easier way of creating embeds. Can pass an array of tupples for fields
 def create_embed(title, description, color=None, image_url=None, thumbnail_url=None, fields=None):
     if color is not None:
         em = Embed(title=title, description=description, 
@@ -50,6 +51,14 @@ def create_embed(title, description, color=None, image_url=None, thumbnail_url=N
         for name, value, inline in fields:
             em.add_field(name=name, value=value, inline=inline)
     return em
+
+
+# similar to strftime, but works with timedelta 
+def strfdelta(tdelta, fmt):
+    d = {"days": tdelta.days}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return fmt.format(**d)
 
 
 class WeiboluBot(Bot):
