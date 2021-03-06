@@ -43,17 +43,24 @@ class Fun(Cog):
         # user gets updated
         await ctx.send(f"User **{response['username']}** updated.")
         highscores = response['newhs']
+        rank_gained = ""
+
+        # pp gained +-
+        if response['pp_rank'] >= 0:
+            rank_gained = "+" + response['pp_rank']
+        else:
+            rank_gained = "-" + response['pp_rank']
 
         # there is a change
         if float(response['pp_rank']) != 0.0:
-            await ctx.send(f"Rank: {response['pp_rank']} ({response['pp_raw']} in {response['playcount']} plays.)")
+            await ctx.send(f"Rank: {rank_gained} ({response['pp_raw']}pp in {response['playcount']} plays).")
         else:
             await ctx.send(f"No changes.")
-            #return
+            return
 
         user_url = f"https://ameobea.me/osutrack/user/{response['username']}"
-        #if len(highscores) != 0:
-        await ctx.send(f"{len(highscores)} new highscore(s)! View them on {user_url}")
+        if len(highscores) != 0:
+            await ctx.send(f"{len(highscores)} new highscore(s)! View them on {user_url}")
 
 
     @osu.command()
