@@ -20,6 +20,7 @@ class Fun(Cog):
             await ctx.send(f"{defs[0]}")
 
 
+    # --------- OSU COMMANDS -------------
     @cooldown(2, 20, BucketType.user)
     @group()
     async def osu(self, ctx):
@@ -27,11 +28,24 @@ class Fun(Cog):
             await ctx.send("Invalid osu command passed.")
 
 
-    #TODO: register user
+    # register osu UID so that you don't have to remember it when using other osu commands.
+    @osu.command(aliases=["r"])
+    async def register(self, ctx, uid: int):
+        user_url = "https://osu.ppy.sh/users/" + str(uid)
+        osu.registerOsuID(ctx.author.id, uid)
+        await ctx.send(f"Osu ID registered to user {user_url}; Please make sure this is correct.")
+
 
 
     @osu.command(aliases=["u"])
-    async def update(self, ctx, uid : int):
+    async def update(self, ctx, uid=-1):
+        # member has a registered osu ID in the db
+        if uid == -1:
+            uid = osu.fetchOsuID(ctx.author.id)
+        if not uid:
+            await ctx.send("Please specify an Osu ID or register yours with `!osu register <uid>`.")
+            return
+
         response = osu.updateUser(uid)
         if not response:
             await ctx.send("Problem updating user.")
@@ -77,7 +91,7 @@ class Fun(Cog):
             is_fc = f"{hs_miss}x miss"
             if int(hs_fc) == 1:
                 is_fc = "FC"
-                
+
             await ctx.send(f"New highscore (#{hs_ranking + 1})! [{hs_pp}pp] '{hs_rank}' {hs_max_combo}x max combo {is_fc}." )
             await ctx.send(f"More info on {user_url}.")
 
@@ -86,7 +100,13 @@ class Fun(Cog):
 
 
     @osu.command()
-    async def peak(self, ctx, uid : int):
+    async def peak(self, ctx, uid=-1):
+        if uid == -1:
+            uid = osu.fetchOsuID(ctx.author.id)
+        if not uid:
+            await ctx.send("Please specify an Osu ID or register yours with `!osu register <uid>`.")
+            return
+
         response = osu.getUserPeak(uid)
         if response:
             if not response['best_global_rank']:

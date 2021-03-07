@@ -104,6 +104,7 @@ class WeiboluBot(Bot):
                     member.joined_at)
                     db.execute("INSERT OR IGNORE INTO member_exp (guild_id, member_id) VALUES (?, ?)", member.guild.id, member.id)
                     db.execute("INSERT OR IGNORE INTO member_points (guild_id, member_id) VALUES (?, ?)", member.guild.id, member.id)
+                    db.execute("INSERT OR IGNORE INTO osu (member_id) VALUES (?)", member.id)
         
         db.commit()
         print("Done.")

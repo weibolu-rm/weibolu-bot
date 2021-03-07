@@ -32,6 +32,14 @@ CREATE TABLE IF NOT EXISTS members (
     FOREIGN KEY (guild_id) REFERENCES guilds (guild_id) ON DELETE CASCADE
 );
 
+-- Guild independent
+CREATE TABLE IF NOT EXISTS osu (
+    member_id INTEGER,
+    osu_id INTEGER,
+    PRIMARY KEY (member_id),
+    FOREIGN KEY (member_id) REFERENCES members (member_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS member_exp (
     member_id INTEGER,
     guild_id INTEGER,
