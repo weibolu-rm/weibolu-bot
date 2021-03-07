@@ -40,26 +40,48 @@ class Fun(Cog):
             await ctx.send("User does not exist.")
             return
 
+        print(response)
+
         # user gets updated
         await ctx.send(f"User **{response['username']}** updated.")
+        user_url = f"https://ameobea.me/osutrack/user/{response['username']}"
         highscores = response['newhs']
-        rank_gained = ""
+        rank_gained = str(response['pp_rank'])
+        acc_gained = str(response['accuracy'])
 
-        # pp gained +-
-        if response['pp_rank'] >= 0:
-            rank_gained = "+" + response['pp_rank']
-        else:
-            rank_gained = "-" + response['pp_rank']
+        # rank gained +-
+        if int(response['pp_rank']) >= 0:
+            rank_gained = "+" + str(response['pp_rank'])
+
+        # acc gain
+        if float(response['accuracy']) >= 0:
+            acc_gained = "+" + str(response['accuracy'])
 
         # there is a change
-        if float(response['pp_rank']) != 0.0:
+        if int(response['pp_rank']) != 0 or float(response['pp_raw']) != 0.0:
             await ctx.send(f"Rank: {rank_gained} ({response['pp_raw']}pp in {response['playcount']} plays).")
+            await ctx.send(f"Accuracy: {acc_gained}")
         else:
             await ctx.send(f"No changes.")
             return
 
-        user_url = f"https://ameobea.me/osutrack/user/{response['username']}"
-        if len(highscores) != 0:
+        # if there's only 1 new hs, display info
+        if len(highscores) == 1:
+            highscore = highscores[0]
+            hs_max_combo = highscore['maxcombo']
+            hs_pp = highscore['pp']
+            hs_fc = highscore['perfect'] # 0 or 1
+            hs_rank = highscore['rank'] # letter rank
+            hs_ranking = highscore['ranking'] # ranking in top 100
+            hs_miss = highscore['countmiss']
+            is_fc = f"{hs_miss}x miss"
+            if int(hs_fc) == 1:
+                is_fc = "FC"
+                
+            await ctx.send(f"New highscore (#{hs_ranking + 1})! [{hs_pp}pp] '{hs_rank}' {hs_max_combo}x max combo {is_fc}." )
+            await ctx.send(f"More info on {user_url}.")
+
+        elif len(highscores) > 1 :
             await ctx.send(f"{len(highscores)} new highscore(s)! View them on {user_url}")
 
 
