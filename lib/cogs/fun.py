@@ -1,5 +1,6 @@
 from discord.ext.commands import Cog, command, has_permissions, cooldown, BucketType, group
 from discord.ext.commands import has_permissions
+from typing import Optional
 from ..urbandict import urbandict as ud
 from ..osu import osu as osu
 from discord import Color, Emoji, HTTPException
@@ -14,10 +15,19 @@ class Fun(Cog):
 
     @cooldown(2, 20, BucketType.user)
     @command(name="define", aliases=["ud"])
-    async def define(self, ctx, *, expression: str):
+    async def define(self, ctx, index: Optional[int], *, expression: str):
+        index = index or 0
+        if index < 0:
+            print("oops")
+            raise BadArgument("Invalid index argument.")
         defs = ud.define(expression)
         if defs:
-            await ctx.send(f"{defs[0]}")
+            if index > len(defs):
+                await ctx.send("Definition not found.")
+            else:
+                await ctx.send(f"{defs[index]}")
+        else:
+            await ctx.send("Definition not found.")
 
 
     # --------- OSU COMMANDS -------------
