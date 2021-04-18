@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS member_points (
     member_id INTEGER,
     guild_id INTEGER,
     points INTEGER DEFAULT 0,
+	guild_house INTEGER DEFAULT 0,
     points_lock TEXT DEFAULT CURRENT_TIMESTAMP,
     daily_cooldown TEXT DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (guild_id, member_id),
