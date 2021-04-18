@@ -63,20 +63,59 @@ class Economy(Cog):
         db.commit()
 
 
+    @buy.command()
+    async def worker(self, ctx, amount=1):
+        if amount <= 0:
+            await ctx.send("Invalid amount passed.")
+            return
+
+        price = 3000
+        points, guild_house, workers = db.record("SELECT points, guild_house, workers FROM member_points WHERE member_id = ? AND guild_id = ?;",
+                                    ctx.author.id, ctx.guild.id) 
+        if int(guild_house) == 0:
+            await ctx.send("You need to purchase a Guild House to have workers!")
+            return
+        
+        msg_prefix = "1 worker"
+        if amount > 1:
+            price = amount * price
+            msg_prefix = f"{amount} workers"
+
+        if int(points) < price:
+            await ctx.send(f"{msg_prefix} is {price} :coin:. You don't have enough funds!")
+            return
+
+        # purchase worker(s)
+        await self.purchase_item(ctx, price, "workers", amount)
+        new_amount = int(amount + workers)
+        await ctx.send(f"Congratulations! You purchased {msg_prefix} for {price} :coin:.\nYou now own {new_amount} workers.")
+
+        db.commit()
 
     @command(name="daily", aliases=["claim"])
     async def daily_check_in(self, ctx):
-        points, daily_cooldown, guild_house = db.record("SELECT points, daily_cooldown, guild_house FROM member_points WHERE member_id = ? AND guild_id = ?;",
+        points, daily_cooldown, guild_house, workers = db.record("SELECT points, daily_cooldown, guild_house, workers FROM member_points WHERE member_id = ? AND guild_id = ?;",
                                     ctx.author.id, ctx.guild.id) 
         # checking if user can receive points
         cooldown_datetime = datetime.fromisoformat(daily_cooldown)
         cooldown = strfdelta(cooldown_datetime - datetime.utcnow(), "{hours} hours and {minutes} minutes")
 
         if  datetime.utcnow() > cooldown_datetime:
+
+            # Member owns guild house and potentially workers
             if int(guild_house) == 1:
                 points_to_add = 500
-                await ctx.send(f"200 daily :coin:\n300 :coin: from guild house\n500 :coin: claimed!")
+                worker_bonus = 0
+                if int(workers) > 0:
+                    worker_bonus = int(workers) * 200
+                    points_to_add = points_to_add + worker_bonus
 
+                await ctx.send(f"""200 daily :coin:
+300 :coin: from guild house
+{worker_bonus} :coin: from {workers} workers
+{points_to_add} :coin: claimed!""")
+
+            # Member has no guild house, default points
             else:
                 points_to_add = 200
                 await ctx.send(f"200 daily :coin: claimed!")
