@@ -63,7 +63,7 @@ class Economy(Cog):
         db.commit()
 
 
-    @buy.command()
+    @buy.command(aliases=["workers", "w"])
     async def worker(self, ctx, amount=1):
         if amount <= 0:
             await ctx.send("Invalid amount passed.")
@@ -141,6 +141,34 @@ class Economy(Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send("That member does not have any point data.")
+
+    @command(name="asset", aliases=["assets"])
+    async def display_assets(self, ctx, member: Optional[Member]):
+        member = member or ctx.author
+
+        guild_house, workers, points = db.record("SELECT guild_house, workers, points FROM member_points WHERE member_id = ? AND guild_id = ?;",
+        member.id, member.guild.id);
+
+        result = ""
+        net_worth = points
+        if int(guild_house) == 1:
+            net_worth += 5000
+            result += ":house: Owns a guild house\n"
+            
+            if int(workers) > 0:
+                net_worth += int(workers) * 3000
+                result += f":tools: {workers} workers\n"
+
+        if points is not None:
+            result += f":purse: {points}\n"
+
+        elif points is None and int(guild_house) == 0:
+            await ctx.send("That member does not have any asset data.")
+            return
+
+        embed = create_embed(f":bank: {member.display_name}'s Assets", f"{result}\n**net worth**: {net_worth} :coin:",
+        color=Color.blue(), thumbnail_url=member.avatar_url)
+        await ctx.send(embed=embed)
 
     @Cog.listener()
     async def on_message(self, message):
